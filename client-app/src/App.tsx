@@ -21,7 +21,7 @@ function App() {
 
 
   return (
-    <div>
+    <cacac>
       <Header as='h2' icon='user' content='Reactivies' />
       <List>
         {activities.map((activity: any) => (
@@ -30,7 +30,7 @@ function App() {
           </List.Item>
         ))}
       </List>
-    </div>
+    </cacac>
   );
 }
 

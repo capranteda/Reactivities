@@ -31,7 +31,7 @@ axios.interceptors.response.use(async response => {
         delete: <T>(url: string) => axios.delete(url).then<T>(responseBody)
     };
 
-    const activities = {
+    const Activities = {
         list: () => requests.get<Activity[]>('/activities'),
         details: (id: string) => requests.get<Activity>(`/activities/${id}`),
         create: (activity: Activity) => axios.post<void>('/activities', activity),
@@ -40,7 +40,7 @@ axios.interceptors.response.use(async response => {
     };
 
     const agent = {
-        activities
+        Activities
     };
 
     export default agent;

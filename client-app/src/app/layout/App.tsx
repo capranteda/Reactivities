@@ -15,7 +15,7 @@ function App() {
     <Fragment>
       <Route exact path="/" component={HomePage} />
       <Route
-        path={'(.+)'}
+        path={'/(.+)'}
         render={() => (
           <Fragment>
             <NavBar />

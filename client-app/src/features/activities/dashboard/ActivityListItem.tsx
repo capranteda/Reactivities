@@ -1,10 +1,11 @@
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button, Icon, Item, Segment } from 'semantic-ui-react';
-import { Activity } from './../../../app/models/activity';
-import { format } from 'date-fns';
+import { Activity } from '../../../app/models/activity';
+import {format} from 'date-fns';
 
 interface Props {
-    activity: Activity;
+    activity: Activity
 }
 
 export default function ActivityListItem({ activity }: Props) {
@@ -14,12 +15,9 @@ export default function ActivityListItem({ activity }: Props) {
             <Segment>
                 <Item.Group>
                     <Item>
-                        <Item.Image size='tiny' circular src='/assets/user.png'></Item.Image>
+                        <Item.Image size='tiny' circular src='/assets/user.png' />
                         <Item.Content>
-                            <Item.Header
-                                as={Link}
-                                to={`/activities/${activity.id}`}
-                            >
+                            <Item.Header as={Link} to={`/activities/${activity.id}`}>
                                 {activity.title}
                             </Item.Header>
                             <Item.Description>Hosted by Bob</Item.Description>
@@ -29,8 +27,8 @@ export default function ActivityListItem({ activity }: Props) {
             </Segment>
             <Segment>
                 <span>
-                    <Icon name="clock" /> {format(activity.date!, 'dd MMM yyyy h:mm aa')}
-                    <Icon name="marker" /> {activity.venue}
+                    <Icon name='clock' /> {format(activity.date!, 'dd MMM yyyy h:mm aa')}
+                    <Icon name='marker' /> {activity.venue}
                 </span>
             </Segment>
             <Segment secondary>
@@ -38,16 +36,14 @@ export default function ActivityListItem({ activity }: Props) {
             </Segment>
             <Segment clearing>
                 <span>{activity.description}</span>
-                <Button
+                <Button 
                     as={Link}
                     to={`/activities/${activity.id}`}
-                    color="teal"
+                    color='teal'
                     floated='right'
                     content='View'
                 />
             </Segment>
-
         </Segment.Group>
     )
-
 }

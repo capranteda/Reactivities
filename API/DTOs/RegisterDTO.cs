@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace API.DTOs
 {
-    public class RegisterDTO
+    public class RegisterDto
     {
         [Required]
         public string DisplayName { get; set; }
@@ -12,9 +12,10 @@ namespace API.DTOs
         public string Email { get; set; }
 
         [Required]
-        [RegularExpression("(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).{4,8}$", ErrorMessage = "Password must contain at least 4 characters, at least 1 uppercase letter, at least 1 lowercase letter and at least 1 number")]
+        [RegularExpression("(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).{4,8}$", ErrorMessage = "Password must be complex")]
         public string Password { get; set; }
+
         [Required]
-        public string UserName { get; set; }
+        public string Username { get; set; }
     }
 }

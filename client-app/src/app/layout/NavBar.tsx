@@ -7,6 +7,7 @@ import { useStore } from '../stores/store';
 export default observer(function NavBar() {
     const { userStore: { user, logout } } = useStore()
 
+
     return (
         <Menu inverted fixed='top'>
             <Container>

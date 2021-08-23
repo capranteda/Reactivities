@@ -181,6 +181,11 @@ await agent.Activities.attend(this.selectedActivity!.id)
 
     }
 
+    clearSelectedActivity = () => {
+        this.selectedActivity = undefined;
+    }
+    
+
 }
 
 

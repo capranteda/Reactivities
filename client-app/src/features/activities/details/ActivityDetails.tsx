@@ -10,13 +10,15 @@ import ActivityDetailedSidebar from './ActivityDetailedSidebar';
 import ActivityDetailedHeader from './ActivityDetaledHeader';
 
 export default observer(function ActivityDetails() {
-    const {activityStore} = useStore();
-    const {selectedActivity: activity, loadActivity, loadingInitial} = activityStore;
-    const {id} = useParams<{id: string}>();
+    const { activityStore } = useStore();
+    const { selectedActivity: activity, loadActivity, loadingInitial, clearSelectedActivity } = activityStore;
+    const { id } = useParams<{ id: string }>();
 
     useEffect(() => {
         if (id) loadActivity(id);
-    }, [id, loadActivity]);
+        //borramos la actiividad seleccionada.
+        return () => clearSelectedActivity();
+    }, [id, loadActivity, clearSelectedActivity]);
 
     if (loadingInitial || !activity) return <LoadingComponent />;
 
@@ -25,7 +27,7 @@ export default observer(function ActivityDetails() {
             <Grid.Column width={10}>
                 <ActivityDetailedHeader activity={activity} />
                 <ActivityDetailedInfo activity={activity} />
-                <ActivityDetailedChat />
+                <ActivityDetailedChat activityId={activity.id} />
             </Grid.Column>
             <Grid.Column width={6}>
                 <ActivityDetailedSidebar activity={activity} />

@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Domain;
 using Microsoft.AspNetCore.Identity;
-using Persistance;
 
 namespace Persistance
 {

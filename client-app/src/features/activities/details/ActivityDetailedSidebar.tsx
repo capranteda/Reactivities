@@ -4,12 +4,11 @@ import { Link } from 'react-router-dom'
 import { observer } from 'mobx-react-lite'
 import { Activity } from '../../../app/models/activity'
 
-
 interface Props {
     activity: Activity;
 }
-export default observer(function ActivityDetailedSidebar({ activity: { attendees, host } }: Props) {
 
+export default observer(function ActivityDetailedSidebar({ activity: { attendees, host } }: Props) {
     if (!attendees) return null;
     return (
         <>
@@ -40,12 +39,13 @@ export default observer(function ActivityDetailedSidebar({ activity: { attendees
                                 <Item.Header as='h3'>
                                     <Link to={`/profiles/${attendee.username}`}>{attendee.displayName}</Link>
                                 </Item.Header>
-                                {/* Solo se muestra si esta siguiendo */}
+                                 {/* Solo se muestra si esta siguiendo */}
                                 {attendee.following &&
                                 <Item.Extra style={{ color: 'orange' }}>Following</Item.Extra>}
                             </Item.Content>
                         </Item>
                     ))}
+
                 </List>
             </Segment>
         </>

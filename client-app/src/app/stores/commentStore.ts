@@ -21,10 +21,10 @@ export default class CommentStore {
                 .configureLogging(LogLevel.Information)
                 .build();
 
-            this.hubConnection.start().catch(err => console.error('Error establishing the connection: ', err));
+            this.hubConnection.start().catch(error => console.log('Error establishing the connection: ', error));
 
-            this.hubConnection.on("LoadComments", (comments: ChatComment[]) => {
-                runInAction(() =>{
+            this.hubConnection.on('LoadComments', (comments: ChatComment[]) => {
+                runInAction(() => {
                     //convertimos todas las fechas de string a objetos Date antes de actualizar el estado
                     comments.forEach(comment => {
                         comment.createdAt = new Date(comment.createdAt + 'Z');
@@ -32,9 +32,8 @@ export default class CommentStore {
                     this.comments = comments
                 });
             })
-
-            //Este metodo lo llamamos desde el sendComment en ChatHub.cs 
-            this.hubConnection.on("ReceiveComments", (comment: ChatComment) => {
+//Este metodo lo llamamos desde el sendComment en ChatHub.cs 
+            this.hubConnection.on('ReceiveComment', (comment: ChatComment) => {
                 runInAction(() => {
                     comment.createdAt = new Date(comment.createdAt);
                     //Usamos unshift para ver los comentarios mas nuevos arriba
@@ -43,10 +42,10 @@ export default class CommentStore {
             })
         }
     }
-    stopHubConnection = () => {
-        this.hubConnection?.stop().catch(err => console.error('Error stopping the connection: ', err));
-    }
 
+    stopHubConnection = () => {
+        this.hubConnection?.stop().catch(error => console.log('Error stopping connection: ', error));
+    }
     //Limpiar comentarios cuando nos desconectamos de esa activity
     clearComments = () => {
         this.comments = [];
@@ -57,10 +56,9 @@ export default class CommentStore {
         values.activityId = store.activityStore.selectedActivity?.id;
         try {
             //El metodo que queremos invocar es el SedComment en ChatHub.cs
-            await this.hubConnection!.invoke("SendComment", values);
+            await this.hubConnection?.invoke('SendComment', values);
         } catch (error) {
             console.log(error);
         }
     }
-
 }

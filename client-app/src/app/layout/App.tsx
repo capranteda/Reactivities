@@ -10,17 +10,16 @@ import TestErrors from '../../features/errors/TestError';
 import { ToastContainer } from 'react-toastify';
 import NotFound from '../../features/errors/NotFound';
 import ServerError from '../../features/errors/ServerError';
-import HomePage from '../../features/home/homePage';
 import LoginForm from '../../features/users/LoginForm';
 import { useStore } from '../stores/store';
 import LoadingComponent from './LoadingComponent';
 import ModalContainer from '../common/modals/ModalContainer';
-import ProfilePage from './../../features/profiles/ProfilePage';
+import ProfilePage from '../../features/profiles/ProfilePage';
+import HomePage from '../../features/home/homePage';
 
 function App() {
   const location = useLocation();
-
-  const { commonStore, userStore } = useStore();
+  const {commonStore, userStore} = useStore();
 
   useEffect(() => {
     if (commonStore.token) {
@@ -28,9 +27,9 @@ function App() {
     } else {
       commonStore.setAppLoaded();
     }
-  }, [commonStore, userStore]);
+  }, [commonStore, userStore])
 
-  if (!commonStore.appLoaded) return <LoadingComponent content="Loading app..." />;
+  if (!commonStore.appLoaded) return <LoadingComponent content='Loading app...' />
 
   return (
     <>
@@ -47,8 +46,8 @@ function App() {
                 <Route exact path='/activities' component={ActivityDashboard} />
                 <Route path='/activities/:id' component={ActivityDetails} />
                 <Route key={location.key} path={['/createActivity', '/manage/:id']} component={ActivityForm} />
-                <Route path='/errors' component={TestErrors} />
                 <Route path='/profiles/:username' component={ProfilePage} />
+                <Route path='/errors' component={TestErrors} />
                 <Route path='/server-error' component={ServerError} />
                 <Route path='/login' component={LoginForm} />
                 <Route component={NotFound} />

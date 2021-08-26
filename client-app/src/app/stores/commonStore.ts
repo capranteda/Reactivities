@@ -5,20 +5,22 @@ export default class CommonStore {
     error: ServerError | null = null;
     token: string | null = window.localStorage.getItem('jwt');
     appLoaded = false;
+
     constructor() {
         makeAutoObservable(this);
+
         reaction(
             () => this.token,
-            (token) => {
-                if (token){
-                    window.localStorage.setItem('jwt', token);
+            token => {
+                if (token) {
+                    window.localStorage.setItem('jwt', token)
                 } else {
-                    window.localStorage.removeItem('jwt');
+                    window.localStorage.removeItem('jwt')
                 }
             }
         )
     }
-
+    
     setServerError = (error: ServerError) => {
         this.error = error;
     }
@@ -27,7 +29,7 @@ export default class CommonStore {
         this.token = token;
     }
 
-    setAppLoaded =()=>{
+    setAppLoaded = () => {
         this.appLoaded = true;
     }
 }

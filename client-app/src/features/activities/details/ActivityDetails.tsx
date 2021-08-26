@@ -10,9 +10,9 @@ import ActivityDetailedSidebar from './ActivityDetailedSidebar';
 import ActivityDetailedHeader from './ActivityDetaledHeader';
 
 export default observer(function ActivityDetails() {
-    const { activityStore } = useStore();
-    const { selectedActivity: activity, loadActivity, loadingInitial, clearSelectedActivity } = activityStore;
-    const { id } = useParams<{ id: string }>();
+    const {activityStore} = useStore();
+    const {selectedActivity: activity, loadActivity, loadingInitial, clearSelectedActivity} = activityStore;
+    const {id} = useParams<{id: string}>();
 
     useEffect(() => {
         if (id) loadActivity(id);

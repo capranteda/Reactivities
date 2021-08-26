@@ -1,7 +1,7 @@
 import { makeAutoObservable, runInAction } from "mobx";
 import agent from "../api/agent";
 import { Activity, ActivityFormValues } from "../models/activity";
-import { format } from 'date-fns';
+import {format} from 'date-fns';
 import { store } from "./store";
 import { Profile } from "../models/profile";
 
@@ -27,7 +27,7 @@ export default class ActivityStore {
                 const date = format(activity.date!, 'dd MMM yyyy');
                 activities[date] = activities[date] ? [...activities[date], activity] : [activity];
                 return activities;
-            }, {} as { [key: string]: Activity[] })
+            }, {} as {[key: string]: Activity[]})
         )
     }
 
@@ -68,15 +68,14 @@ export default class ActivityStore {
     }
 
     private setActivity = (activity: Activity) => {
-        const user = store.userStore.user
+        const user = store.userStore.user;
         if (user) {
-            activity.isGoing = activity.attendees!.some(attendee =>
-                attendee.username === user.username);
-
+            activity.isGoing = activity.attendees!.some(
+                a => a.username === user.username
+            )
             activity.isHost = activity.hostUsername === user.username;
-            activity.host = activity.attendees!.find(x => x.username === activity.hostUsername);
+            activity.host = activity.attendees?.find(x => x.username === activity.hostUsername);
         }
-
         activity.date = new Date(activity.date!);
         this.activityRegistry.set(activity.id, activity);
     }
@@ -92,15 +91,14 @@ export default class ActivityStore {
     createActivity = async (activity: ActivityFormValues) => {
         const user = store.userStore.user;
         const attendee = new Profile(user!);
-        const newActivity = new Activity(activity);
-        newActivity.hostUsername = user!.username;
-        newActivity.attendees = [attendee];
-        this.setActivity(newActivity);
         try {
             await agent.Activities.create(activity);
+            const newActivity = new Activity(activity);
+            newActivity.hostUsername = user!.username;
+            newActivity.attendees = [attendee];
+            this.setActivity(newActivity);
             runInAction(() => {
                 this.selectedActivity = newActivity;
-
             })
         } catch (error) {
             console.log(error);
@@ -112,12 +110,10 @@ export default class ActivityStore {
             await agent.Activities.update(activity);
             runInAction(() => {
                 if (activity.id) {
-                    let updatedActivity = { ...this.getActivity(activity.id), ...activity };
+                    let updatedActivity = {...this.getActivity(activity.id), ...activity}
                     this.activityRegistry.set(activity.id, updatedActivity as Activity);
                     this.selectedActivity = updatedActivity as Activity;
-
-
-                }
+                } 
             })
         } catch (error) {
             console.log(error);
@@ -139,34 +135,35 @@ export default class ActivityStore {
             })
         }
     }
+
     updateAttendance = async () => {
         const user = store.userStore.user;
         this.loading = true;
         try {
-            await agent.Activities.attend(this.selectedActivity!.id)
+            await agent.Activities.attend(this.selectedActivity!.id);
             runInAction(() => {
                 if (this.selectedActivity?.isGoing) {
-                    this.selectedActivity.attendees = this.selectedActivity.attendees?.filter(a => a.username !== user?.username);
+                    this.selectedActivity.attendees = 
+                        this.selectedActivity.attendees?.filter(a => a.username !== user?.username);
                     this.selectedActivity.isGoing = false;
                 } else {
                     const attendee = new Profile(user!);
                     this.selectedActivity?.attendees?.push(attendee);
                     this.selectedActivity!.isGoing = true;
                 }
-                this.activityRegistry.set(this.selectedActivity!.id, this.selectedActivity!);
+                this.activityRegistry.set(this.selectedActivity!.id, this.selectedActivity!)
             })
         } catch (error) {
             console.log(error);
         } finally {
-            runInAction(() => {
-                this.loading = false;
-            })
+            runInAction(() => this.loading = false);
         }
     }
+
     cancelActivityToggle = async () => {
         this.loading = true;
         try {
-            await agent.Activities.attend(this.selectedActivity!.id)
+            await agent.Activities.attend(this.selectedActivity!.id);
             runInAction(() => {
                 this.selectedActivity!.isCancelled = !this.selectedActivity?.isCancelled;
                 this.activityRegistry.set(this.selectedActivity!.id, this.selectedActivity!);
@@ -174,32 +171,24 @@ export default class ActivityStore {
         } catch (error) {
             console.log(error);
         } finally {
-            runInAction(() => {
-                this.loading = false;
-            })
+            runInAction(() => this.loading = false);
         }
-
+    }
+//Creamos el metodo para actualizar el follow wn todo el activity registry. Si no lo sigue que lo siga y sume un seguidor. Si lo sigue lo elimine y descuente el numero de seguidores.
+    //Cambia en todas las activity y todas las attendee de cada activity
+    updateAttendeeFollowing = (username: string) => {
+        this.activityRegistry.forEach(activity => {
+            activity.attendees.forEach(attendee => {
+                 //Si en esa attendee esta el username que le pasamos, lo eliminamos de la lista de seguidores o lo añadimos y aumentamos el numero de seguidores o lo descendemos
+                if (attendee.username === username) {
+                    attendee.following ? attendee.followersCount-- : attendee.followersCount++;
+                    attendee.following = !attendee.following;
+                }
+            })
+        })
     }
 
     clearSelectedActivity = () => {
         this.selectedActivity = undefined;
     }
-
-    //Creamos el metodo para actualizar el follow wn todo el activity registry. Si no lo sigue que lo siga y sume un seguidor. Si lo sigue lo elimine y descuente el numero de seguidores.
-    //Cambia en todas las activity y todas las attendee de cada activity
-    updateAttendeeFollowing = (username: string) => {
-        this.activityRegistry.forEach(activity => {
-            activity.attendees.forEach(attendee => {
-                //Si en esa attendee esta el username que le pasamos, lo eliminamos de la lista de seguidores o lo añadimos y aumentamos el numero de seguidores o lo descendemos
-                if (attendee.username === username) {
-                    attendee.following ? attendee.followersCount-- : attendee.followersCount++;
-                    attendee.following = !attendee.following;
-                }
-            });
-        });
-    }
-
-
 }
-
-

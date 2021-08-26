@@ -1,19 +1,17 @@
+import { Formik, Form, Field, FieldProps } from 'formik'
 import { observer } from 'mobx-react-lite'
-import { useEffect } from 'react';
-import { Segment, Header, Comment, Loader } from 'semantic-ui-react';
+import React, { useEffect } from 'react'
+import { Link } from 'react-router-dom'
+import { Segment, Header, Comment, Loader } from 'semantic-ui-react'
 import { useStore } from '../../../app/stores/store';
-import { Link } from 'react-router-dom';
-import { Formik, Form, Field, FieldProps } from 'formik';
-//import yup to validate 
 import * as Yup from 'yup';
-import { formatDistanceToNow } from 'date-fns';
+import { formatDistanceToNow } from 'date-fns'
 
 interface Props {
     activityId: string;
 }
 
 export default observer(function ActivityDetailedChat({ activityId }: Props) {
-
     const { commentStore } = useStore();
 
     useEffect(() => {
@@ -23,8 +21,7 @@ export default observer(function ActivityDetailedChat({ activityId }: Props) {
         return () => {
             commentStore.clearComments();
         }
-    }, [activityId, commentStore]);
-
+    }, [commentStore, activityId]);
 
     return (
         <>
@@ -52,13 +49,13 @@ export default observer(function ActivityDetailedChat({ activityId }: Props) {
                     {/* tomamos estos atributos y metodos de Formik */}
                     {({ isSubmitting, isValid, handleSubmit }) => (
                         //Ojo que este form no es de semantic-ui-react sino de formik
-                        <Form className=" ui form">
-                            <Field name="body">
+                        <Form className='ui form'>
+                            <Field name='body'>
                                 {(props: FieldProps) => (
                                     <div style={{ position: 'relative' }}>
                                         <Loader active={isSubmitting} />
                                         <textarea
-                                            placeholder="Enter your comment (ENTER to submit, SHIFT + ENTER for new line)"
+                                            placeholder='Enter your comment (Enter to submit, SHIFT + enter for new line)'
                                             rows={2}
                                             // pasamos los onfield, onblur, etc con el ...props
                                             {...props.field}
@@ -75,7 +72,6 @@ export default observer(function ActivityDetailedChat({ activityId }: Props) {
                                             }}
                                         />
                                     </div>
-
                                 )}
                             </Field>
                         </Form>
@@ -83,25 +79,21 @@ export default observer(function ActivityDetailedChat({ activityId }: Props) {
                 </Formik>
                 <Comment.Group>
                     {commentStore.comments.map(comment => (
-                        <Comment key={comment.id} >
+                        <Comment key={comment.id}>
                             <Comment.Avatar src={comment.image || '/assets/user.png'} />
                             <Comment.Content>
-                                <Comment.Author as={Link} to={`/profiles/${comment.username}`} >
-                                    {comment.displayName}</Comment.Author>
+                                <Comment.Author as={Link} to={`/profiles/${comment.username}`}>
+                                    {comment.displayName}
+                                </Comment.Author>
                                 <Comment.Metadata>
-                                    {/* es un metodo para mostrar mas amigablemente la fecha */}
-                                    <div>{formatDistanceToNow(comment.createdAt)} ago.</div>
+                                    <div>{formatDistanceToNow(comment.createdAt)} ago</div>
                                 </Comment.Metadata>
                                 <Comment.Text
-                                    //queremos que los enter los tome como nueva linea
-                                    style={{ whiteSpace: 'pre-wrap' }}
-                                >{comment.body}</Comment.Text>
-
+                                    /* es un metodo para mostrar mas amigablemente la fecha */
+                                    style={{ whiteSpace: 'pre-wrap' }}>{comment.body}</Comment.Text>
                             </Comment.Content>
                         </Comment>
                     ))}
-
-
                 </Comment.Group>
             </Segment>
         </>

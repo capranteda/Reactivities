@@ -1,4 +1,4 @@
-import { makeAutoObservable, runInAction } from "mobx";
+import { makeAutoObservable, reaction, runInAction } from "mobx";
 import agent from "../api/agent";
 import { Photo, Profile } from "../models/profile";
 import { store } from "./store";
@@ -9,9 +9,27 @@ export default class ProfileStore {
     uploading = false;
     loading = false;
     followings: Profile[] = [];
-    loadingFollowings= false;
+    loadingFollowings = false;
+    activeTab = 0;
+
     constructor() {
         makeAutoObservable(this);
+
+        reaction(
+            () => this.activeTab,
+            activeTab => {
+                if (activeTab === 3 || activeTab === 4) {
+                    const predicate = activeTab === 3 ? 'followers' : 'following';
+                    this.loadFollowings(predicate);
+                } else {
+                    this.followings = [];
+                }
+            }
+        )
+    }
+
+    setActiveTab = (activeTab: any) => {
+        this.activeTab = activeTab;
     }
 
     get isCurrentUser() {
@@ -50,7 +68,7 @@ export default class ProfileStore {
                 }
                 this.uploading = false;
             })
-        } catch (error) {
+        } catch (error) {   
             console.log(error);
             runInAction(() => this.uploading = false);
         }
@@ -96,11 +114,10 @@ export default class ProfileStore {
         try {
             await agent.Profiles.updateProfile(profile);
             runInAction(() => {
-                if (profile.displayName && profile.displayName !==
-                    store.userStore.user?.displayName) {
+                if (profile.displayName && profile.displayName !== store.userStore.user?.displayName) {
                     store.userStore.setDisplayName(profile.displayName);
                 }
-                this.profile = { ...this.profile, ...profile as Profile };
+                this.profile = {...this.profile, ...profile as Profile};
                 this.loading = false;
             })
         } catch (error) {
@@ -138,8 +155,7 @@ export default class ProfileStore {
             runInAction(() => this.loading = false);
         }
     }
-
-    // Metodo en profileStore para obtener los followings, el  predicado es para ver si queremos la lista de followings o de followers. el primer argumento lo sacamos del usuario logueado
+// Metodo en profileStore para obtener los followings, el  predicado es para ver si queremos la lista de followings o de followers. el primer argumento lo sacamos del usuario logueado
     loadFollowings = async (predicate: string) => {
         this.loadingFollowings = true;
         try {
@@ -149,8 +165,8 @@ export default class ProfileStore {
                 this.loadingFollowings = false;
             })
         } catch (error) {
-            console.log(error);
             runInAction(() => this.loadingFollowings = false);
         }
     }
+
 }

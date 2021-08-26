@@ -24,7 +24,7 @@ axios.interceptors.response.use(async response => {
     await sleep(1000);
     return response;
 }, (error: AxiosError) => {
-    const { data, status, config } = error.response!;
+    const {data, status, config} = error.response!;
     switch (status) {
         case 400:
             if (config.method === 'get' && data.errors.hasOwnProperty('id')) {
@@ -86,17 +86,16 @@ const Profiles = {
         let formData = new FormData();
         formData.append('File', file);
         return axios.post<Photo>('photos', formData, {
-            headers: { 'Content-type': 'multipart/form-data' }
+            headers: {'Content-type': 'multipart/form-data'}
         })
     },
     setMainPhoto: (id: string) => requests.post(`/photos/${id}/setMain`, {}),
     deletePhoto: (id: string) => requests.del(`/photos/${id}`),
-    updateProfile: (profile: Partial<Profile>) => requests.put(`/profiles`,
-        profile),
+    updateProfile: (profile: Partial<Profile>) => requests.put(`/profiles`, profile),
     //Metodo para cambiar el cambiar el follow
     updateFollowing: (username: string) => requests.post(`/follow/${username}`, {}),
     //Metodo para obtener los followings
-    listFollowings: (username: string, predicate: string) =>
+    listFollowings: (username: string, predicate: string) => 
         requests.get<Profile[]>(`/follow/${username}?predicate=${predicate}`)
 }
 

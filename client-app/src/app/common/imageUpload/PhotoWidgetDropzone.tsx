@@ -6,7 +6,7 @@ interface Props {
     setFiles: (files: any) => void;
 }
 
-export default function PhotoWidgetDropzone({ setFiles }: Props) {
+export default function PhotoWidgetDropzone({setFiles}: Props) {
     const dzStyles = {
         border: 'dashed 3px #eee',
         borderColor: '#eee',

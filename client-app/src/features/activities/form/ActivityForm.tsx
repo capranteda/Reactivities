@@ -1,5 +1,5 @@
 import { observer } from 'mobx-react-lite';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useHistory, useParams } from 'react-router-dom';
 import { Button, Header, Segment } from 'semantic-ui-react';
 import LoadingComponent from '../../../app/layout/LoadingComponent';
@@ -17,8 +17,7 @@ import { ActivityFormValues } from '../../../app/models/activity';
 export default observer(function ActivityForm() {
     const history = useHistory();
     const { activityStore } = useStore();
-    const { createActivity, updateActivity,
-        loadActivity, loadingInitial } = activityStore;
+    const { createActivity, updateActivity, loadActivity, loadingInitial } = activityStore;
     const { id } = useParams<{ id: string }>();
 
     const [activity, setActivity] = useState<ActivityFormValues>(new ActivityFormValues());
@@ -33,7 +32,7 @@ export default observer(function ActivityForm() {
     })
 
     useEffect(() => {
-        if (id) loadActivity(id).then(activity => setActivity(new ActivityFormValues(activity)));
+        if (id) loadActivity(id).then(activity => setActivity(new ActivityFormValues(activity)))
     }, [id, loadActivity]);
 
     function handleFormSubmit(activity: ActivityFormValues) {

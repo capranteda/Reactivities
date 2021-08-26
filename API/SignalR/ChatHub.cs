@@ -17,11 +17,10 @@ namespace API.SignalR
         public async Task SendComment(Create.Command command)
         {
             var comment = await _mediator.Send(command);
-
-            //Enviamos el metodo ReceiveComments, que lo va a ejecutar el cliente en commentStore para hacer un push al array de comentarios. 
+//Enviamos el metodo ReceiveComments, que lo va a ejecutar el cliente en commentStore para hacer un push al array de comentarios. 
             //Cada usuario que se conecte (si esta en el grupo) va a recibir una copia del comentarios
             await Clients.Group(command.ActivityId.ToString())
-                .SendAsync("ReceiveComments", comment.Value);
+                .SendAsync("ReceiveComment", comment.Value);
         }
 
         public override async Task OnConnectedAsync()
@@ -29,11 +28,8 @@ namespace API.SignalR
             var httpContext = Context.GetHttpContext();
             var activityId = httpContext.Request.Query["activityId"];
             await Groups.AddToGroupAsync(Context.ConnectionId, activityId);
-            var result = await _mediator.Send(new List.Query { ActivityId = Guid.Parse(activityId) });
+            var result = await _mediator.Send(new List.Query{ActivityId = Guid.Parse(activityId)});
             await Clients.Caller.SendAsync("LoadComments", result.Value);
         }
-
-
-
     }
 }

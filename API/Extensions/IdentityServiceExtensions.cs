@@ -15,7 +15,8 @@ namespace API.Extensions
 {
     public static class IdentityServiceExtensions
     {
-        public static IServiceCollection AddIdentityServices(this IServiceCollection services, IConfiguration config)
+        public static IServiceCollection AddIdentityServices(this IServiceCollection services, 
+            IConfiguration config)
         {
             services.AddIdentityCore<AppUser>(opt =>
             {
@@ -23,7 +24,9 @@ namespace API.Extensions
             })
             .AddEntityFrameworkStores<DataContext>()
             .AddSignInManager<SignInManager<AppUser>>();
+
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["TokenKey"]));
+
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(opt =>
                 {
@@ -37,10 +40,9 @@ namespace API.Extensions
                         // Validate the JWT Audience (aud) claim
                         ValidateAudience = false
                     };
-
                     opt.Events = new JwtBearerEvents
                     {
-                        OnMessageReceived = context =>
+                        OnMessageReceived = context => 
                         {
                             var accessToken = context.Request.Query["access_token"];
                             var path = context.HttpContext.Request.Path;
@@ -51,8 +53,8 @@ namespace API.Extensions
                             return Task.CompletedTask;
                         }
                     };
-
                 });
+
             services.AddAuthorization(opt =>
             {
                 opt.AddPolicy("IsActivityHost", policy =>

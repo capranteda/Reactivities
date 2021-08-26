@@ -8,7 +8,8 @@ export default class ProfileStore {
     loadingProfile = false;
     uploading = false;
     loading = false;
-
+    followings: Profile[] = [];
+    loadingFollowings= false;
     constructor() {
         makeAutoObservable(this);
     }
@@ -105,6 +106,51 @@ export default class ProfileStore {
         } catch (error) {
             console.log(error);
             runInAction(() => this.loading = false);
+        }
+    }
+
+    updateFollowing = async (username: string, following: boolean) => {
+        this.loading = true;
+        try {
+            //Usamos el updateFollowing que creamos en agent.profiles que cambia el following en la bd
+            await agent.Profiles.updateFollowing(username);
+            //Actualizamos los attendees que estan en el state
+            store.activityStore.updateAttendeeFollowing(username);
+            runInAction(() => {
+                //Chequeamos si el profile no es el del usuario logueado
+                if (this.profile && this.profile.username !== store.userStore.user?.username && this.profile.username === username) {
+                    following ? this.profile.followersCount++ : this.profile.followersCount--;
+                    this.profile.following = !this.profile.following;
+                }
+                if (this.profile && this.profile.username === store.userStore.user?.username) {
+                    following ? this.profile.followingCount++ : this.profile.followingCount--;
+                }
+                this.followings.forEach(profile => {
+                    if (profile.username === username) {
+                        profile.following ? profile.followersCount-- : profile.followersCount++;
+                        profile.following = !profile.following;
+                    }
+                })
+                this.loading = false;
+            })
+        } catch (error) {
+            console.log(error);
+            runInAction(() => this.loading = false);
+        }
+    }
+
+    // Metodo en profileStore para obtener los followings, el  predicado es para ver si queremos la lista de followings o de followers. el primer argumento lo sacamos del usuario logueado
+    loadFollowings = async (predicate: string) => {
+        this.loadingFollowings = true;
+        try {
+            const followings = await agent.Profiles.listFollowings(this.profile!.username, predicate);
+            runInAction(() => {
+                this.followings = followings;
+                this.loadingFollowings = false;
+            })
+        } catch (error) {
+            console.log(error);
+            runInAction(() => this.loadingFollowings = false);
         }
     }
 }

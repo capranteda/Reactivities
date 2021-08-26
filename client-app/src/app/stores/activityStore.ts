@@ -100,7 +100,7 @@ export default class ActivityStore {
             await agent.Activities.create(activity);
             runInAction(() => {
                 this.selectedActivity = newActivity;
-                
+
             })
         } catch (error) {
             console.log(error);
@@ -111,10 +111,10 @@ export default class ActivityStore {
         try {
             await agent.Activities.update(activity);
             runInAction(() => {
-                if (activity.id){
-                let updatedActivity = {...this.getActivity(activity.id), ...activity};
-                this.activityRegistry.set(activity.id, updatedActivity as Activity);
-                this.selectedActivity = updatedActivity as Activity;
+                if (activity.id) {
+                    let updatedActivity = { ...this.getActivity(activity.id), ...activity };
+                    this.activityRegistry.set(activity.id, updatedActivity as Activity);
+                    this.selectedActivity = updatedActivity as Activity;
 
 
                 }
@@ -166,7 +166,7 @@ export default class ActivityStore {
     cancelActivityToggle = async () => {
         this.loading = true;
         try {
-await agent.Activities.attend(this.selectedActivity!.id)
+            await agent.Activities.attend(this.selectedActivity!.id)
             runInAction(() => {
                 this.selectedActivity!.isCancelled = !this.selectedActivity?.isCancelled;
                 this.activityRegistry.set(this.selectedActivity!.id, this.selectedActivity!);
@@ -184,7 +184,21 @@ await agent.Activities.attend(this.selectedActivity!.id)
     clearSelectedActivity = () => {
         this.selectedActivity = undefined;
     }
-    
+
+    //Creamos el metodo para actualizar el follow wn todo el activity registry. Si no lo sigue que lo siga y sume un seguidor. Si lo sigue lo elimine y descuente el numero de seguidores.
+    //Cambia en todas las activity y todas las attendee de cada activity
+    updateAttendeeFollowing = (username: string) => {
+        this.activityRegistry.forEach(activity => {
+            activity.attendees.forEach(attendee => {
+                //Si en esa attendee esta el username que le pasamos, lo eliminamos de la lista de seguidores o lo añadimos y aumentamos el numero de seguidores o lo descendemos
+                if (attendee.username === username) {
+                    attendee.following ? attendee.followersCount-- : attendee.followersCount++;
+                    attendee.following = !attendee.following;
+                }
+            });
+        });
+    }
+
 
 }
 

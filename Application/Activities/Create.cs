@@ -1,6 +1,6 @@
 using System.Threading;
 using System.Threading.Tasks;
-using Application.core;
+using Application.Core;
 using Application.Interfaces;
 using Domain;
 using FluentValidation;
@@ -21,7 +21,7 @@ namespace Application.Activities
         {
             public CommandValidator()
             {
-                RuleFor(m => m.Activity).SetValidator(new ActivityValidator());
+                RuleFor(x => x.Activity).SetValidator(new ActivityValidator());
             }
         }
 
@@ -37,12 +37,13 @@ namespace Application.Activities
 
             public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
             {
-                var user = await _context.Users.FirstOrDefaultAsync(x => x.UserName == _userAccessor.GetUsername());
+                var user = await _context.Users.FirstOrDefaultAsync(x => 
+                    x.UserName == _userAccessor.GetUsername());
 
                 var attendee = new ActivityAttendee
                 {
-                    Activity = request.Activity,
                     AppUser = user,
+                    Activity = request.Activity,
                     IsHost = true
                 };
 
@@ -52,7 +53,7 @@ namespace Application.Activities
 
                 var result = await _context.SaveChangesAsync() > 0;
 
-                if (!result) return Result<Unit>.Failure("Failed to create activity.");
+                if (!result) return Result<Unit>.Failure("Failed to create activity");
 
                 return Result<Unit>.Success(Unit.Value);
             }

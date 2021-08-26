@@ -1,7 +1,7 @@
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.core;
+using Application.Core;
 using Application.Interfaces;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
@@ -33,13 +33,13 @@ namespace Application.Profiles
             public async Task<Result<Profile>> Handle(Query request, CancellationToken cancellationToken)
             {
                 var user = await _context.Users
-                .ProjectTo<Profile>(_mapper.ConfigurationProvider,
-                        new { currentUsername = _userAccessor.GetUsername() })
-                .SingleOrDefaultAsync(x => x.Username == request.Username);
+                    .ProjectTo<Profile>(_mapper.ConfigurationProvider, 
+                        new {currentUsername = _userAccessor.GetUsername()})
+                    .SingleOrDefaultAsync(x => x.Username == request.Username);
 
                 if (user == null) return null;
 
-                return  Result<Profile>.Success(user);
+                return Result<Profile>.Success(user);
             }
         }
     }

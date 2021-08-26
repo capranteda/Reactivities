@@ -42,7 +42,7 @@ namespace API.Extensions
             services.AddMediatR(typeof(List.Handler).Assembly);
             services.AddAutoMapper(typeof(MappingProfiles).Assembly);
             services.AddScoped<IUserAccessor, UserAccessor>();
-            services.AddScoped<IPhotoAccesor, PhotoAccesor>();
+            services.AddScoped<IPhotoAccessor, PhotoAccessor>();
             services.Configure<CloudinarySettings>(config.GetSection("Cloudinary"));
             services.AddSignalR();
 

@@ -1,7 +1,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Application.core;
+using Application.Core;
 using Application.Interfaces;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
@@ -17,9 +17,9 @@ namespace Application.Activities
         {
             public Guid Id { get; set; }
         }
+
         public class Handler : IRequestHandler<Query, Result<ActivityDto>>
         {
-            //Inject DataContext
             private readonly DataContext _context;
             private readonly IMapper _mapper;
             private readonly IUserAccessor _userAccessor;
@@ -33,10 +33,11 @@ namespace Application.Activities
             public async Task<Result<ActivityDto>> Handle(Query request, CancellationToken cancellationToken)
             {
                 //Siempre donde queramos mapeat estos usuarios con ProjectTo tenemso que pasar el logueado con userAccessor
+                
                 var activity = await _context.Activities
-                   .ProjectTo<ActivityDto>(_mapper.ConfigurationProvider,
-                       new { currentUsername = _userAccessor.GetUsername() })
-                   .FirstOrDefaultAsync(x => x.Id == request.Id);
+                    .ProjectTo<ActivityDto>(_mapper.ConfigurationProvider, 
+                        new {currentUsername = _userAccessor.GetUsername()})
+                    .FirstOrDefaultAsync(x => x.Id == request.Id);
 
                 return Result<ActivityDto>.Success(activity);
             }

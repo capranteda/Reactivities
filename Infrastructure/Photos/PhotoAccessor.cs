@@ -9,10 +9,10 @@ using Microsoft.Extensions.Options;
 
 namespace Infrastructure.Photos
 {
-    public class PhotoAccesor : IPhotoAccesor
+    public class PhotoAccessor : IPhotoAccessor
     {
         private readonly Cloudinary _cloudinary;
-        public PhotoAccesor(IOptions<CloudinarySettings> config)
+        public PhotoAccessor(IOptions<CloudinarySettings> config)
         {
             var account = new Account(
                 config.Value.CloudName,

@@ -15,11 +15,14 @@ export default class ProfileStore {
     constructor() {
         makeAutoObservable(this);
 
+        //Vamos a usar mobx reaction para las tabs. para que cambien cuando sea following o followers
         reaction(
             () => this.activeTab,
             activeTab => {
+                // 3 followers y 2 following
                 if (activeTab === 3 || activeTab === 4) {
                     const predicate = activeTab === 3 ? 'followers' : 'following';
+                    //aca llamamos al loadFollowings para no hacerlo del componente
                     this.loadFollowings(predicate);
                 } else {
                     this.followings = [];
@@ -28,6 +31,7 @@ export default class ProfileStore {
         )
     }
 
+    //funcion para llamar a la activetab. esta funcion la vamos a llamar desde ProfileContent
     setActiveTab = (activeTab: any) => {
         this.activeTab = activeTab;
     }

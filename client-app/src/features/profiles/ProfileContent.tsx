@@ -27,6 +27,7 @@ export default observer(function ProfileContent({profile}: Props) {
             menu={{fluid: true, vertical: true}}
             menuPosition='right'
             panes={panes}
+            //aca vamos a tener el index del menuItem para ver si estamos en following o followers
             onTabChange={(e, data) => profileStore.setActiveTab(data.activeIndex)}
         />
     )

@@ -9,6 +9,8 @@ export default observer(function ProfileFollowings() {
     const {profile, followings, loadingFollowings, activeTab} = profileStore;
 
     return (
+
+        //Es un tab pane que muestra las cards de la gente que sigue o lo sigue
         <Tab.Pane loading={loadingFollowings}>
             <Grid>
                 <Grid.Column width='16'>
@@ -19,6 +21,7 @@ export default observer(function ProfileFollowings() {
                     />
                 </Grid.Column>
                 <Grid.Column width='16'>
+                    {/* Agregamos la tab con los seguidores/seguidos */}
                     <Card.Group itemsPerRow={4}>
                         {followings.map(profile => (
                             <ProfileCard key={profile.username} profile={profile} />

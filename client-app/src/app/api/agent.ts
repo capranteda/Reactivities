@@ -3,7 +3,7 @@ import { toast } from 'react-toastify';
 import { history } from '../..';
 import { Activity, ActivityFormValues } from '../models/activity';
 import { PaginatedResult } from '../models/pagination';
-import { Photo, Profile } from '../models/profile';
+import { Photo, Profile, UserActivity } from '../models/profile';
 import { User, UserFormValues } from '../models/user';
 import { store } from '../stores/store';
 
@@ -77,7 +77,7 @@ const requests = {
 
 const Activities = {
     //modificamos este metodo para que tome los params
-    list: (params:URLSearchParams) => axios.get<PaginatedResult<Activity[]>>('/activities', { params}).then(responseBody),
+    list: (params: URLSearchParams) => axios.get<PaginatedResult<Activity[]>>('/activities', { params }).then(responseBody),
     details: (id: string) => requests.get<Activity>(`/activities/${id}`),
     create: (activity: ActivityFormValues) => requests.post<void>('/activities', activity),
     update: (activity: ActivityFormValues) => requests.put<void>(`/activities/${activity.id}`, activity),
@@ -107,7 +107,9 @@ const Profiles = {
     updateFollowing: (username: string) => requests.post(`/follow/${username}`, {}),
     //Metodo para obtener los followings
     listFollowings: (username: string, predicate: string) =>
-        requests.get<Profile[]>(`/follow/${username}?predicate=${predicate}`)
+        requests.get<Profile[]>(`/follow/${username}?predicate=${predicate}`),
+    listActivities: (username: string, predicate: string) =>
+        requests.get<UserActivity[]>(`/profiles/${username}/activities?predicate=${predicate}`)
 }
 
 const agent = {

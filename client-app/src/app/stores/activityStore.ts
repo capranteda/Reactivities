@@ -1,9 +1,10 @@
-import { makeAutoObservable, runInAction } from "mobx";
+import { makeAutoObservable, reaction, runInAction } from "mobx";
 import agent from "../api/agent";
 import { Activity, ActivityFormValues } from "../models/activity";
-import {format} from 'date-fns';
+import { format } from 'date-fns';
 import { store } from "./store";
 import { Profile } from "../models/profile";
+import { Pagination, PagingParams } from "../models/pagination";
 
 export default class ActivityStore {
     activityRegistry = new Map<string, Activity>();
@@ -11,14 +12,79 @@ export default class ActivityStore {
     editMode = false;
     loading = false;
     loadingInitial = false;
+    pagination: Pagination | null = null;
+    // instanciamos la clase pagingParams
+    pagingParams = new PagingParams();
+    //Creamos un predicate que sea un new map y lo seteamos 'all', true
+    predicate = new Map().set('all', true);
 
     constructor() {
-        makeAutoObservable(this)
+        makeAutoObservable(this);
+
+        reaction(
+            () => this.predicate.keys(),
+            () => {
+                this.pagingParams = new PagingParams();
+                this.activityRegistry.clear();
+                this.loadActivities();
+            }
+        )
     }
+
 
     get activitiesByDate() {
         return Array.from(this.activityRegistry.values()).sort((a, b) =>
             a.date!.getTime() - b.date!.getTime());
+    }
+
+    //seteamos el paginParams
+    setPagingParams = (pagingParams: PagingParams) => {
+        this.pagingParams = pagingParams;
+    }
+
+    //Aca seteamos el predicado para actualizarlo y que lo vea el reaction
+    setPredicate = (predicate: string, value: string | Date) => {
+        const resetPredicate = () => {
+            this.predicate.forEach((value, key) => {
+                if (key !== 'startDate') this.predicate.delete(key);
+            });
+        }
+        switch (predicate) {
+            case 'all':
+                resetPredicate();
+                this.predicate.set('all', true);
+                break;
+            case 'isGoing':
+                resetPredicate();
+                this.predicate.set('isGoing', true);
+                break;
+            case 'isHost':
+                resetPredicate();
+                this.predicate.set('isHost', true);
+                break;
+            case 'startDate':
+                this.predicate.delete('startDate');
+                this.predicate.set('startDate', value);
+
+        }
+    }
+
+    //Tomar un predicado del cliente asi cuando clickea en uno de estos filtros actualizamos algo en el store al que poder reaccionar
+    //creamos otra computed basado en lo que hay adentro de pagingParams
+    get axiosParams() {
+        const params = new URLSearchParams();
+        params.append('pageNumber', this.pagingParams.pageNumber.toString());
+        params.append('pageSize', this.pagingParams.pageSize.toString());
+        this.predicate.forEach((value, key) => {
+            //Si existe el key startDate lo agregamos al params como Date
+            if (key === 'startDate') {
+                params.append(key, (value as Date).toISOString());
+            } else {
+                params.append(key, value);
+            }
+        });
+
+        return params;
     }
 
     get groupedActivities() {
@@ -27,22 +93,31 @@ export default class ActivityStore {
                 const date = format(activity.date!, 'dd MMM yyyy');
                 activities[date] = activities[date] ? [...activities[date], activity] : [activity];
                 return activities;
-            }, {} as {[key: string]: Activity[]})
+            }, {} as { [key: string]: Activity[] })
         )
     }
 
     loadActivities = async () => {
         this.loadingInitial = true;
         try {
-            const activities = await agent.Activities.list();
-            activities.forEach(activity => {
+            //Ahora hay que acceder a la data antes de poder iterarlo
+            //pasamos los params al metodo list
+            const result = await agent.Activities.list(this.axiosParams);
+            result.data.forEach(activity => {
                 this.setActivity(activity);
             })
+            //Seteamos la nueva paginacion
+            this.setPagination(result.pagination);
             this.setLoadingInitial(false);
         } catch (error) {
             console.log(error);
             this.setLoadingInitial(false);
         }
+    }
+
+    //Creamos el metodoSetPagination
+    setPagination = (pagination: Pagination) => {
+        this.pagination = pagination;
     }
 
     loadActivity = async (id: string) => {
@@ -110,10 +185,10 @@ export default class ActivityStore {
             await agent.Activities.update(activity);
             runInAction(() => {
                 if (activity.id) {
-                    let updatedActivity = {...this.getActivity(activity.id), ...activity}
+                    let updatedActivity = { ...this.getActivity(activity.id), ...activity }
                     this.activityRegistry.set(activity.id, updatedActivity as Activity);
                     this.selectedActivity = updatedActivity as Activity;
-                } 
+                }
             })
         } catch (error) {
             console.log(error);
@@ -143,7 +218,7 @@ export default class ActivityStore {
             await agent.Activities.attend(this.selectedActivity!.id);
             runInAction(() => {
                 if (this.selectedActivity?.isGoing) {
-                    this.selectedActivity.attendees = 
+                    this.selectedActivity.attendees =
                         this.selectedActivity.attendees?.filter(a => a.username !== user?.username);
                     this.selectedActivity.isGoing = false;
                 } else {
@@ -174,12 +249,12 @@ export default class ActivityStore {
             runInAction(() => this.loading = false);
         }
     }
-//Creamos el metodo para actualizar el follow wn todo el activity registry. Si no lo sigue que lo siga y sume un seguidor. Si lo sigue lo elimine y descuente el numero de seguidores.
+    //Creamos el metodo para actualizar el follow wn todo el activity registry. Si no lo sigue que lo siga y sume un seguidor. Si lo sigue lo elimine y descuente el numero de seguidores.
     //Cambia en todas las activity y todas las attendee de cada activity
     updateAttendeeFollowing = (username: string) => {
         this.activityRegistry.forEach(activity => {
             activity.attendees.forEach(attendee => {
-                 //Si en esa attendee esta el username que le pasamos, lo eliminamos de la lista de seguidores o lo añadimos y aumentamos el numero de seguidores o lo descendemos
+                //Si en esa attendee esta el username que le pasamos, lo eliminamos de la lista de seguidores o lo añadimos y aumentamos el numero de seguidores o lo descendemos
                 if (attendee.username === username) {
                     attendee.following ? attendee.followersCount-- : attendee.followersCount++;
                     attendee.following = !attendee.following;

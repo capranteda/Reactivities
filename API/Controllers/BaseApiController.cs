@@ -1,3 +1,4 @@
+using API.Extensions;
 using Application.core;
 using Application.Core;
 using MediatR;
@@ -26,7 +27,23 @@ namespace API.Controllers
                 return NotFound();
             }
             return BadRequest(result.Error);
+        }
 
+        //Controlamos si es un response paginado para incluir el Header de AddPaginationHeader
+        protected ActionResult HandlePagedResult<T>(Result<PagedList<T>> result)
+        {
+            if (result == null) return NotFound();
+            if (result.IsSuccess && result.Value != null)
+            {
+                Response.AddPaginationHeader(result.Value.CurrentPage, result.Value.PageSize,
+                result.Value.TotalCount, result.Value.TotalPages);
+                return Ok(result.Value);
+            }
+            if (result.IsSuccess && result.Value == null)
+            {
+                return NotFound();
+            }
+            return BadRequest(result.Error);
         }
 
 

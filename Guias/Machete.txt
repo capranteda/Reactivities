@@ -1,0 +1,1 @@
+Si en un dto queremos crear una propiedad que no se devuelva al usuario podemos usar el decorador JsonIgnore

@@ -2,6 +2,7 @@ import axios, { AxiosError, AxiosResponse } from 'axios';
 import { toast } from 'react-toastify';
 import { history } from '../..';
 import { Activity, ActivityFormValues } from '../models/activity';
+import { PaginatedResult } from '../models/pagination';
 import { Photo, Profile } from '../models/profile';
 import { User, UserFormValues } from '../models/user';
 import { store } from '../stores/store';
@@ -22,9 +23,18 @@ axios.interceptors.request.use(config => {
 
 axios.interceptors.response.use(async response => {
     await sleep(1000);
+    // Vamos a revisar si tenemos un header pagination
+    const pagination = response.headers['pagination'];
+    if (pagination) {
+        // Si existe el header pagination, instanciamos una nueva instancia de PaginatedResult y la asignamos al response
+        response.data = new PaginatedResult(response.data, JSON.parse(pagination));
+        //Ahora el response va a tener estos datos de paginacion
+        return response as AxiosResponse<PaginatedResult<any>>;
+    }
+
     return response;
 }, (error: AxiosError) => {
-    const {data, status, config} = error.response!;
+    const { data, status, config } = error.response!;
     switch (status) {
         case 400:
             if (config.method === 'get' && data.errors.hasOwnProperty('id')) {
@@ -66,7 +76,8 @@ const requests = {
 }
 
 const Activities = {
-    list: () => requests.get<Activity[]>('/activities'),
+    //modificamos este metodo para que tome los params
+    list: (params:URLSearchParams) => axios.get<PaginatedResult<Activity[]>>('/activities', { params}).then(responseBody),
     details: (id: string) => requests.get<Activity>(`/activities/${id}`),
     create: (activity: ActivityFormValues) => requests.post<void>('/activities', activity),
     update: (activity: ActivityFormValues) => requests.put<void>(`/activities/${activity.id}`, activity),
@@ -86,7 +97,7 @@ const Profiles = {
         let formData = new FormData();
         formData.append('File', file);
         return axios.post<Photo>('photos', formData, {
-            headers: {'Content-type': 'multipart/form-data'}
+            headers: { 'Content-type': 'multipart/form-data' }
         })
     },
     setMainPhoto: (id: string) => requests.post(`/photos/${id}/setMain`, {}),
@@ -95,7 +106,7 @@ const Profiles = {
     //Metodo para cambiar el cambiar el follow
     updateFollowing: (username: string) => requests.post(`/follow/${username}`, {}),
     //Metodo para obtener los followings
-    listFollowings: (username: string, predicate: string) => 
+    listFollowings: (username: string, predicate: string) =>
         requests.get<Profile[]>(`/follow/${username}?predicate=${predicate}`)
 }
 

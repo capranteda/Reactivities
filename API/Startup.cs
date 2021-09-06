@@ -76,7 +76,7 @@ namespace API
             .FrameAncestors(s => s.Self())
             //Decimos que confiamos y que permita las imagenes de los sitios externos a parte de las propias
             .ImageSources(s => s.Self().CustomSources("https://res.cloudinary.com"))
-            // Un inline-script es un script que se ejecuta en el contexto del documento es decir dentro del mismo html, que no es lo mismo que un script externo
+            // Un inline-script es un script que se ejecuta en el contexto del documento es decir dentro del mismo html, que no es lo mismo que un script externo.
             .ScriptSources(s => s.Self().CustomSources("sha256-pEGqpGbAe4AVDYhlaqozkC1MWLOi3h5+YdxwJLqZk/Q="))
 
             );

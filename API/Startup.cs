@@ -94,7 +94,7 @@ namespace API
                 //HTTP Strict-Transport-Security (a menudo abreviado como HSTS (en-US)) es una característica de seguridad que permite a un sitio web indicar a los navegadores que sólo se debe comunicar con HTTPS en lugar de usar HTTP.
                 app.Use(async (context, next) =>
                 {
-                    context.Response.Headers.Add("Content-Security-Policy", "max-age=31536000");
+                    context.Response.Headers.Add("Strict-Transport-Security", "max-age=31536000");
                     await next.Invoke();
                 });
             }

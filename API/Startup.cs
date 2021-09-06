@@ -68,6 +68,13 @@ namespace API
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            //UseDefaultFiles es para que cuando se haga una peticion a la raiz de la aplicacion (wwwroot), se muestre el index.html
+            app.UseDefaultFiles();
+            //Esta configuracion es para poder utilizar static files, o sea react
+            app.UseStaticFiles();
+
+
             app.UseCors("CorsPolicy");
 
             app.UseAuthentication();
@@ -77,6 +84,8 @@ namespace API
             {
                 endpoints.MapControllers();
                 endpoints.MapHub<ChatHub>("/chat");
+                //MapFallbackToController sirve para cuando no se encuentra una ruta, se muestre el index del controller que se le pasa. En este caso, el index del controller FallbackController
+                endpoints.MapFallbackToController("Index", "Fallback");
             });
         }
     }

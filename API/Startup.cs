@@ -59,10 +59,44 @@ namespace API
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             app.UseMiddleware<ExceptionMiddleware>();
+
+            //LE agregamos un poco de seguridad
+            app.UseXContentTypeOptions();
+            app.UseReferrerPolicy(opt => opt.NoReferrer());
+            app.UseXXssProtection(opt => opt.EnabledWithBlockMode());
+            app.UseXfo(opt => opt.Deny());
+            // app.UseCspReportOnly(opt => opt no detiene la aplicacion, pero lo reporta. UseCsp es para detener la aplicacion
+            app.UseCsp(opt => opt
+            .BlockAllMixedContent()
+            //Decimos que confiamos y que permita los estilos de los sitios externos a parte de las propias
+            .StyleSources(s => s.Self().CustomSources("https://fonts.googleapis.com"))
+            //Decimos que permita los fonts de los sitios externos a parte de los propios. Basicamente de las fuentes que empiezan con...
+            .FontSources(s => s.Self().CustomSources("https://fonts.gstatic.com", "data:"))
+            .FormActions(s => s.Self())
+            .FrameAncestors(s => s.Self())
+            //Decimos que confiamos y que permita las imagenes de los sitios externos a parte de las propias
+            .ImageSources(s => s.Self().CustomSources("https://res.cloudinary.com"))
+            // Un inline-script es un script que se ejecuta en el contexto del documento es decir dentro del mismo html, que no es lo mismo que un script externo
+            .ScriptSources(s => s.Self().CustomSources("sha256-pEGqpGbAe4AVDYhlaqozkC1MWLOi3h5+YdxwJLqZk/Q="))
+
+            );
+            //terminamos la seguridad
+
+
             if (env.IsDevelopment())
             {
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "API v1"));
+            }
+            else
+            {
+                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+                //HTTP Strict-Transport-Security (a menudo abreviado como HSTS (en-US)) es una característica de seguridad que permite a un sitio web indicar a los navegadores que sólo se debe comunicar con HTTPS en lugar de usar HTTP.
+                app.Use(async (context, next) =>
+                {
+                    context.Response.Headers.Add("Content-Security-Policy", "max-age=31536000");
+                    await next.Invoke();
+                });
             }
 
             app.UseHttpsRedirection();

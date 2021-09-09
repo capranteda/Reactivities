@@ -69,16 +69,26 @@ namespace API
             app.UseCsp(opt => opt
             .BlockAllMixedContent()
             //Decimos que confiamos y que permita los estilos de los sitios externos a parte de las propias
-            .StyleSources(s => s.Self().CustomSources("https://fonts.googleapis.com"))
+            .StyleSources(s => s.Self().CustomSources(
+                "https://fonts.googleapis.com",
+                "sha256-yChqzBduCCi4o4xdbXRXh4U/t1rP4UUUMJt+rB+ylUI=",
+                "sha256-r3x6D0yBZdyG8FpooR5ZxcsLuwuJ+pSQ/80YzwXS5IU="))
             //Decimos que permita los fonts de los sitios externos a parte de los propios. Basicamente de las fuentes que empiezan con...
-            .FontSources(s => s.Self().CustomSources("https://fonts.gstatic.com", "data:"))
+            .FontSources(s => s.Self().CustomSources(
+                "https://fonts.gstatic.com", "data:"))
             .FormActions(s => s.Self())
             .FrameAncestors(s => s.Self())
             //Decimos que confiamos y que permita las imagenes de los sitios externos a parte de las propias
-            .ImageSources(s => s.Self().CustomSources("https://res.cloudinary.com"))
+            .ImageSources(s => s.Self().CustomSources(
+                "https://res.cloudinary.com",
+                "https://www.facebook.com",
+                "https://platform-lookaside.fbsbx.com"
+            ))
             // Un inline-script es un script que se ejecuta en el contexto del documento es decir dentro del mismo html, que no es lo mismo que un script externo.
-            .ScriptSources(s => s.Self().CustomSources("sha256-pEGqpGbAe4AVDYhlaqozkC1MWLOi3h5+YdxwJLqZk/Q="))
-
+            .ScriptSources(s => s.Self().CustomSources(
+                "sha256-pEGqpGbAe4AVDYhlaqozkC1MWLOi3h5+YdxwJLqZk/Q=",
+                "https://connect.facebook.net",
+                "sha256-bOrB+lAXR5KAgwXdVc+y0ITam8vTDE2NJT+qsq1jmHY="))
             );
             //terminamos la seguridad
 

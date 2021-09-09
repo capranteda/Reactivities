@@ -6,6 +6,9 @@ import { store } from "./store";
 
 export default class UserStore {
     user: User | null = null;
+    //Now, what we can do is we're going to set this access token when our application starts up.
+    fbAccessToken: string | null = null;
+    fbLoading = false;
 
     constructor() {
         makeAutoObservable(this)
@@ -61,5 +64,39 @@ export default class UserStore {
 
     setDisplayName = (name: string) => {
         if (this.user) this.user.displayName = name;
+    }
+
+    //Obtenemos el token de acceso de Facebook si esta logueado
+    //Esto devuelve una promesa
+    getFacebookLoginStatus = async () => {
+        window.FB.getLoginStatus(response => {
+            if (response.status === 'connected') {
+                this.fbAccessToken = response.authResponse.accessToken;
+            }
+        })
+    }
+
+    facebookLogin = () => {
+        this.fbLoading = true;
+        const apiLogin = (accessToken: string) => {
+            agent.Account.fbLogin(accessToken).then(user => {
+                store.commonStore.setToken(user.token);
+                runInAction(() => {
+                    this.user = user;
+                    this.fbLoading = false;
+                })
+                history.push('/activities');
+            }).catch(error => {
+                console.log(error);
+                runInAction(() => this.fbLoading = false);
+            })
+        }
+        if (this.fbAccessToken) {
+            apiLogin(this.fbAccessToken);
+        } else {
+            window.FB.login(response => {
+                apiLogin(response.authResponse.accessToken);
+            }, {scope: 'public_profile,email'})
+        }
     }
 }

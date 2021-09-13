@@ -1,3 +1,4 @@
+using System;
 using System.Text;
 using System.Threading.Tasks;
 using API.Services;
@@ -38,7 +39,11 @@ namespace API.Extensions
                         // Validate the JWT Issuer (iss) claim
                         ValidateIssuer = false,
                         // Validate the JWT Audience (aud) claim
-                        ValidateAudience = false
+                        ValidateAudience = false,
+                        // Validate the token expiry
+                        ValidateLifetime = true,
+                        //ClockSkew es el tiempo de tolerancia para la expiración del token
+                        ClockSkew = TimeSpan.Zero
                     };
                     opt.Events = new JwtBearerEvents
                     {

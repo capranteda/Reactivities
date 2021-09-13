@@ -19,7 +19,7 @@ namespace API.Extensions
             //Aqui se esta mandando el response con los datos de la paginacion serializandolo en json
             response.Headers.Add("Pagination", JsonSerializer.Serialize(paginationHeader));
             //Para que se pueda agregar y lo puedan ver desde el client hay que exponerlo como un header
-            response.Headers.Add("Access-Control-Expose-Headers", "Pagination");
+            //response.Headers.Add("Access-Control-Expose-Headers", "Pagination");
 
         }
     }
